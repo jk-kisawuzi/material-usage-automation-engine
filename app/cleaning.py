@@ -1,56 +1,22 @@
-import streamlit as st
 import pandas as pd
-from io import BytesIO
 
-from validation import validate_data
-from anomalies import detect_anomalies
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Basic cleaning operations for material usage data.
+    Adjust this logic to match your real cleaning rules.
+    """
 
-st.title("Material Usage Automation Engine")
+    cleaned = df.copy()
 
-uploaded_file = st.file_uploader("Upload your material usage file", type=["xlsx"])
+    # Example cleaning rules:
+    # Remove empty rows
+    cleaned = cleaned.dropna(how="all")
 
-if uploaded_file:
-    df = pd.read_excel(uploaded_file)
+    # Strip whitespace from column names
+    cleaned.columns = cleaned.columns.str.strip()
 
-    st.subheader("Raw Data")
-    st.dataframe(df)
+    # Fill missing numeric values with 0
+    for col in cleaned.select_dtypes(include=["float", "int"]).columns:
+        cleaned[col] = cleaned[col].fillna(0)
 
-    cleaned_df = clean_data(df)
-    st.subheader("Cleaned Data")
-    st.dataframe(cleaned_df)
-
-    validation_issues = validate_data(cleaned_df)
-    st.subheader("Validation Issues")
-    st.dataframe(validation_issues)
-
-    anomalies = detect_anomalies(cleaned_df)
-    st.subheader("Anomalies")
-    st.dataframe(anomalies)
-
-    def to_excel(df):
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False)
-        return output.getvalue()
-
-    st.download_button(
-        "Download Cleaned Output",
-        data=to_excel(cleaned_df),
-        file_name="clean_output.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-    st.download_button(
-        "Download Validation Issues",
-        data=to_excel(validation_issues),
-        file_name="validation_issues.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-    st.download_button(
-        "Download Anomaly Report",
-        data=to_excel(anomalies),
-        file_name="anomaly_report.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
+    return cleaned
