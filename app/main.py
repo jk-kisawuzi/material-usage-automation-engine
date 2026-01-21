@@ -1,18 +1,19 @@
 import sys
 import os
 
-# Fix for Streamlit Cloud: ensure the project root is in Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import engine  # Force-load the engine package
+# Ensure project root is in Python path
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.append(ROOT_DIR)
 
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from engine.cleaning import clean_data
-from engine.validation import validate_data
-from engine.anomalies import detect_anomalies
+# Absolute imports using full package path
+from material_usage_automation_engine.engine.cleaning import clean_data
+from material_usage_automation_engine.engine.validation import validate_data
+from material_usage_automation_engine.engine.anomalies import detect_anomalies
 
 st.title("Material Usage Automation Engine")
 
