@@ -1,11 +1,14 @@
 import sys
 import os
 
-# Fix for Streamlit Cloud: ensure root folder is in Python path
+# Fix for Streamlit Cloud: ensure the project root is in Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import engine  # Force-load the engine package
 
 import streamlit as st
 import pandas as pd
+from io import BytesIO
 
 from engine.cleaning import clean_data
 from engine.validation import validate_data
@@ -36,21 +39,31 @@ if uploaded_file:
     st.subheader("Anomalies")
     st.dataframe(anomalies)
 
-    # Downloads
+    # Helper function for Excel downloads
+    def to_excel(df):
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, index=False)
+        return output.getvalue()
+
+    # Download buttons
     st.download_button(
         "Download Cleaned Output",
-        cleaned_df.to_excel(index=False),
-        file_name="clean_output.xlsx"
+        data=to_excel(cleaned_df),
+        file_name="clean_output.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
     st.download_button(
         "Download Validation Issues",
-        validation_issues.to_excel(index=False),
-        file_name="validation_issues.xlsx"
+        data=to_excel(validation_issues),
+        file_name="validation_issues.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
     st.download_button(
         "Download Anomaly Report",
-        anomalies.to_excel(index=False),
-        file_name="anomaly_report.xlsx"
+        data=to_excel(anomalies),
+        file_name="anomaly_report.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
