@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-# Direct imports because all modules are now in the same folder as main.py
 from cleaning import clean_data
 from validation import validate_data
 from anomalies import detect_anomalies
@@ -17,29 +16,24 @@ if uploaded_file:
     st.subheader("Raw Data")
     st.dataframe(df)
 
-    # Cleaning
     cleaned_df = clean_data(df)
     st.subheader("Cleaned Data")
     st.dataframe(cleaned_df)
 
-    # Validation
     validation_issues = validate_data(cleaned_df)
     st.subheader("Validation Issues")
     st.dataframe(validation_issues)
 
-    # Anomalies
     anomalies = detect_anomalies(cleaned_df)
     st.subheader("Anomalies")
     st.dataframe(anomalies)
 
-    # Helper function for Excel downloads
     def to_excel(df):
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df.to_excel(writer, index=False)
         return output.getvalue()
 
-    # Download buttons
     st.download_button(
         "Download Cleaned Output",
         data=to_excel(cleaned_df),
