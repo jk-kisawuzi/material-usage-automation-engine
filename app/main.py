@@ -1,19 +1,11 @@
-import sys
-import os
-
-# Ensure project root is in Python path
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if ROOT_DIR not in sys.path:
-    sys.path.append(ROOT_DIR)
-
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-# Absolute imports using full package path
-from material_usage_automation_engine.engine.cleaning import clean_data
-from material_usage_automation_engine.engine.validation import validate_data
-from material_usage_automation_engine.engine.anomalies import detect_anomalies
+# Correct imports now that engine/ is inside app/
+from app.engine.cleaning import clean_data
+from app.engine.validation import validate_data
+from app.engine.anomalies import detect_anomalies
 
 st.title("Material Usage Automation Engine")
 
