@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-from cleaning import clean_data
 from validation import validate_data
 from anomalies import detect_anomalies
 
@@ -54,3 +53,4 @@ if uploaded_file:
         file_name="anomaly_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
