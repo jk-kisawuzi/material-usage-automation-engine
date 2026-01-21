@@ -1,17 +1,8 @@
-import sys
-import os
-
-# Ensure the engine folder is visible to Python
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-ENGINE_DIR = os.path.join(CURRENT_DIR, "engine")
-if ENGINE_DIR not in sys.path:
-    sys.path.append(ENGINE_DIR)
-
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-# Now simple imports work
+# Direct imports because all modules are now in the same folder as main.py
 from cleaning import clean_data
 from validation import validate_data
 from anomalies import detect_anomalies
