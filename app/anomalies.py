@@ -1,41 +1,40 @@
 import pandas as pd
 
-def detect_outliers(df, column="quantity", z_threshold=3):
-    """Detect statistical outliers using Z-score."""
-    if column not in df.columns:
-        return pd.DataFrame()
+def detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Detects simple anomalies in the material usage dataset.
+    You can expand this logic later, but this version will run safely.
+    """
 
-    df_clean = df[df[column].notna()].copy()
-    df_clean["z_score"] = (df_clean[column] - df_clean[column].mean()) / df_clean[column].std()
+    anomalies = []
 
-    return df_clean[df_clean["z_score"].abs() > z_threshold]
+    # Example anomaly rules — adjust as needed
+    for idx, row in df.iterrows():
+        issue_list = []
 
-def detect_spikes(df, column="quantity", multiplier=3):
-    """Detect sudden spikes compared to previous values."""
-    if column not in df.columns:
-        return pd.DataFrame()
+        # Rule 1: Negative quantities
+        if "Quantity" in df.columns and row["Quantity"] < 0:
+            issue_list.append("Negative quantity")
 
-    df_sorted = df.sort_values(by="posting_date").copy()
-    df_sorted["prev_value"] = df_sorted[column].shift(1)
-    df_sorted["ratio"] = df_sorted[column] / df_sorted["prev_value"]
+        # Rule 2: Zero usage
+        if "Quantity" in df.columns and row["Quantity"] == 0:
+            issue_list.append("Zero quantity")
 
-    return df_sorted[df_sorted["ratio"] > multiplier]
+        # Rule 3: Missing material code
+        if "Material" in df.columns and pd.isna(row["Material"]):
+            issue_list.append("Missing material code")
 
-def detect_drops(df, column="quantity", multiplier=3):
-    """Detect sudden drops compared to previous values."""
-    if column not in df.columns:
-        return pd.DataFrame()
+        # If any issues found, record them
+        if issue_list:
+            anomalies.append({
+                "Row": idx,
+                "Material": row.get("Material", None),
+                "Quantity": row.get("Quantity", None),
+                "Issues": ", ".join(issue_list)
+            })
 
-    df_sorted = df.sort_values(by="posting_date").copy()
-    df_sorted["prev_value"] = df_sorted[column].shift(1)
-    df_sorted["ratio"] = df_sorted["prev_value"] / df_sorted[column]
-
-    return df_sorted[df_sorted["ratio"] > multiplier]
-
-def anomaly_report(df):
-    """Run all anomaly detection checks."""
-    return {
-        "outliers": detect_outliers(df),
-        "spikes": detect_spikes(df),
-        "drops": detect_drops(df),
-    }
+    # Convert to DataFrame
+    if anomalies:
+        return pd.DataFrame(anomalies)
+    else:
+        return pd.DataFrame(columns=["Row", "Material", "Quantity", "Issues"])
